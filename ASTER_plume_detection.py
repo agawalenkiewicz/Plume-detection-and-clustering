@@ -18,6 +18,8 @@ import water_detection_mask as wdm
 def masked_bt_nighttime(nc_file, landmask_file):	
 	BT10 = np.rot90(np.array(nc_file.variables['BT_band10']))
 	
+	BT10_up = np.roll(BT10, -2, axis=0)
+	BT10_right= np.roll(BT10_up, -10, axis=1)
 	#plt.imshow(BT10)
 	#plt.show()
 	
@@ -27,7 +29,7 @@ def masked_bt_nighttime(nc_file, landmask_file):
 	a = np.ma.masked_equal(landmask, 0)
 	aMask = np.ma.getmaskarray(a)
 	# Apply the mask to the TIR data.
-	BT_masked = np.ma.array(BT10, mask=aMask, fill_value=np.nan)
+	BT_masked = np.ma.array(BT10_right, mask=aMask, fill_value=np.nan)
 	#np.ma.set_fill_value(BT_masked, np.nan)
 	return BT_masked
 
@@ -52,13 +54,17 @@ def stack_water_detection(filename, path, landmask_file):
 		nc_file = nc.Dataset(element_path)
 		
 		BT_masked = masked_bt_nighttime(nc_file, landmask_file)
+	
 		#BT_masked = np.array(nc_file.variables['BT10_masked'])
 		BT_masked[BT_masked > 350] = np.nan 
-		BT_masked[BT_masked < 273] = np.nan
+		BT_masked[BT_masked < 276] = np.nan
 		BT_masked[BT_masked.mask == True] = np.nan
 		
-		#plt.imshow(BT_masked)
-		#plt.title('BT nighttime with statistical landmask')
+		#my_cmap = matplotlib.cm.rainbow 
+		#my_cmap.set_bad(color='white', alpha=0.75)
+
+		#plt.imshow(BT_masked) #, cmap= my_cmap)
+		#plt.title('Shifted BT nighttime with statistical landmask')
 		#plt.show()
 		
 		result_array[i,:,:] = BT_masked
@@ -160,48 +166,51 @@ def choose_plume(image_thresholded):
 	return chosen_plume
 
 ######################################################
+def ASTER_plume_main():
+	filename1 = ASTER_ncfiles.hinkley_tir
+	path1 = ASTER_ncfiles.hinkley_path
+	mask = '/home/users/mp877190/CODE/plume_detection_clustering/Hinkley_landmask.nc'
+	masked_stack1 = stack_water_detection(filename1, path1, mask)
 
-filename1 = ASTER_ncfiles.hartlepool
-path1 = ASTER_ncfiles.hartlepool_path
-mask1 = '/home/users/mp877190/CODE/plume_detection_clustering/Hartlepool_landmask.nc'
-masked_stack1 = stack_water_detection(filename1, path1, mask1)
+	filename2 = ASTER_ncfiles.hinkley_1999_tir
+	path2 = ASTER_ncfiles.hinkley_1999_path
+	masked_stack2 = stack_water_detection(filename2, path2, mask)
 
-plume_array = np.zeros_like(masked_stack1)
+	masked_stack = np.concatenate((masked_stack1, masked_stack2),axis=0)
 
-for i, layer in enumerate(masked_stack1):
-	BT_Celsius = layer - 273.15
-	
-	#plt.imshow(BT_Celsius)
-	#plt.title('BT nighttime with statistical landmask')
-	#plt.show()
-	
-	# get a central part of the image
-	sub_layer = subimage(BT_Celsius, 25)
-	ambient = centered_average(BT_Celsius[0:150, 250:400]) #[0:150, 250:400])
-	accepted_thresh = np.float(ambient) + 1.0 #np.float(max_val) -  np.float(ambient)
-	#print('accepted threshold' , accepted_thresh)
-	threshold   = accepted_thresh
-	image_thresh = np.copy(BT_Celsius)
-	image_thresh[image_thresh<threshold] = np.nan
-	plume = choose_plume(image_thresh)
-	
-	#plt.imshow(plume)
-	#plt.title('Detected plume')
-	#plt.show()
-	
-	plume_array[i,:,:] = plume
-	end_result = np.nansum(plume_array, axis=0)
-	end_result = (end_result / np.amax(end_result)) * 100
+	plume_array = np.zeros_like(masked_stack)
+	for i, layer in enumerate(masked_stack):
+		BT_Celsius = layer - 273.15
 
+		#plt.imshow(BT_Celsius)
+		#plt.title('BT nighttime with statistical landmask')
+		#plt.show()
+		
+		# get a central part of the image
+		sub_layer = subimage(BT_Celsius, 25)
+		ambient = centered_average(BT_Celsius[100:200, 100:200]) #[0:150, 250:400])
+		accepted_thresh = np.float(ambient) + 1.0 #np.float(max_val) -  np.float(ambient)
+		#print('accepted threshold' , accepted_thresh)
+		threshold   = accepted_thresh
+		image_thresh = np.copy(BT_Celsius)
+		image_thresh[image_thresh<threshold] = np.nan
+		plume = choose_plume(image_thresh)
+		
+		#plt.imshow(plume)
+		#plt.title('Detected plume')
+		#plt.show()
+		
+		plume_array[i,:,:] = plume
+		end_result = np.nansum(plume_array, axis=0)
+		end_result = (end_result / np.amax(end_result)) * 100
+	return plume_array
+"""
 ## PLOT THE PROBABILITY DENSITY MAP 
 my_cmap = matplotlib.cm.hot_r 
 my_cmap.set_under(color='paleturquoise') #, alpha=0.5)
 plt.imshow(end_result, cmap= my_cmap, vmin=1)
 plt.colorbar()
-plt.title('HARTLEPOOL \n Probability of plume extent from nighttime ASTER imagery')
+plt.title('HEYSHAM \n Probability of plume extent from nighttime ASTER imagery')
 plt.tight_layout()
 plt.show()
-
-
-
-
+"""
