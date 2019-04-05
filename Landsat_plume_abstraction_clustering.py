@@ -136,120 +136,124 @@ def choose_plume(image_thresholded):
 	chosen_object = [0,50]
 	for object in object_idx: #range(0,numobjects):
 		#object = object + 1
-		print('object' , object)
+		#print('object' , object)
 		iy, ix = np.where(labeled_image == object)
 		centridx_y = 200
-		centridx_x = 200
+		centridx_x = 190 #200
 		min_dist = np.min(np.sqrt((centridx_y - iy)**2 + (centridx_x - ix)**2))
 		if min_dist < chosen_object[1]:
 			chosen_object = [object, min_dist]
-		print(object , min_dist)
-	print('Chosen object' , chosen_object)
+		#print(object , min_dist)
+	#print('Chosen object' , chosen_object)
 	#chosen_plume = np.where((labeled_image == chosen_object[0]), chosen_object[0], 0)
 	if chosen_object[1] == 50:
 		chosen_plume = np.zeros_like(labeled_image)
 	else:
 		chosen_plume = np.where((labeled_image == chosen_object[0]), 1, 0)
+	area = sum(sum(i == True for i in chosen_plume))
+	print "Detected plume area (number of pixels):" , area
 	return chosen_plume
 	
 #------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------	
+def Landsat_plume_main():
+	filename1 = Landsat_ncfiles.hinkley
+	path1 = Landsat_ncfiles.hinkley_path
+	masked_stack1, dates_stack1 = lm95.stack_water_detection(filename1, path1)
 
-filename1 = Landsat_ncfiles.torness_ebb
-path1 = Landsat_ncfiles.torness_path
-masked_stack1, dates_stack1 = lm95.stack_water_detection(filename1, path1)
+	filename2 = Landsat_ncfiles.hinkley_10_50
+	path2 = Landsat_ncfiles.hinkley_10_50_path
+	masked_stack2, dates_stack2 = lm95.stack_water_detection(filename2, path2)
 
-filename2 = Landsat_ncfiles.torness_10_50_ebb
-path2 = Landsat_ncfiles.torness_10_50_path
-masked_stack2, dates_stack2 = lm95.stack_water_detection(filename2, path2)
+	masked_stack = np.concatenate((masked_stack1, masked_stack2),axis=0)
+	dates_stack = dates_stack1 + dates_stack2
 
-masked_stack = np.concatenate((masked_stack1, masked_stack2),axis=0)
-dates_stack = dates_stack1 + dates_stack2
+	print dates_stack
 
-print dates_stack
-
-averaged_BT = lm95.avg_BT(masked_stack)
-landmask = lm95.stat_landmask(averaged_BT)
-
-plume_array = np.zeros_like(masked_stack)
-
-for i, layer in enumerate(masked_stack): 
-	date_in_image_name = dates_stack[i]
-	# make sure that the values with statistical landmask are set to NaN
-	layer[landmask] = np.nan
-	"""
-	plt.imshow(np.rot90(layer))
-	plt.title('SIZEWELL \n Brightness temperature')
-	plt.colorbar()
-	plt.show()
-	"""
-	# expand land mask by morphological dilation
-	#extended_landmask = morphological_dilation(layer, 20)
-	#layer[extended_landmask] = np.nan
-
-	# depending on location convert BT to SST
-	calculated_sst = sst_regres.torness_bt_to_sst(layer)
-	SST_Celsius = calculated_sst - 273.15
-	SST_Celsius = np.rot90(SST_Celsius)
-	meanSST = np.nanmean(SST_Celsius)
-	print meanSST
-	SST_amplitude = SST_Celsius - meanSST
-	"""
-	my_cmap = matplotlib.cm.BuPu #hot_r #coolwarm #BuPu #seismic #magma #coolwarm
-	my_cmap.set_bad(color='khaki', alpha=1.0) #olive #black #khaki #silver
-	plt.imshow(SST_amplitude, cmap= my_cmap, vmax=3, vmin=-3)
-	plt.title('Hartlepool SST during ebb'+' '+str(date_in_image_name))
-	plt.colorbar()
-	plt.show()
-	#plt.savefig('/home/users/mp877190/getting_netcdf/SST_plots/Hartlepool/Hartlepool__'+str(date_in_image_name)+'.png')
-	plt.clf()
-	"""
-	
-	# Create a Rectangle patch
-	#rect = patches.Rectangle((250,0),150,150,linewidth=1,edgecolor='k',facecolor='none')
-	#ax.add_patch(rect)
-	#plt.show()
-
-	# get a central part of the image
-	sub_layer = subimage(SST_Celsius, 25)
-	max_val = find_max(sub_layer)
-	print('max value' , max_val)
-	ambient = centered_average(SST_Celsius[150:300, 250:400]) #[0:150, 250:400])
-	accepted_thresh = np.float(ambient) + 1.0 #np.float(max_val) -  np.float(ambient)
-	print('accepted threshold' , accepted_thresh)
-	threshold   = accepted_thresh
-	image_thresh = np.copy(SST_Celsius)
-	image_thresh[image_thresh<threshold] = np.nan
-
-	#plt.imshow(image_thresh)
-	#plt.colorbar()
-	#plt.title('Image thresholded')
-	#plt.show()
-	
-	plume = choose_plume(image_thresh)
-	
-	plt.imshow(plume)
-	plt.title('Detected plume' + str(date_in_image_name))
-	plt.show()
-	
-	plume_array[i,:,:] = plume
-
-	end_result = np.nansum(plume_array, axis=0)
-	end_result = (end_result / np.amax(end_result)) * 100
-
+	averaged_BT = lm95.avg_BT(masked_stack)
+	landmask = lm95.stat_landmask(averaged_BT)
 
 	
+	plume_array = np.zeros_like(masked_stack)
+	for i, layer in enumerate(masked_stack): 
+		date_in_image_name = dates_stack[i]
+		# make sure that the values with statistical landmask are set to NaN
+		layer[landmask] = np.nan
+		"""
+		plt.imshow(np.rot90(layer))
+		plt.title('SIZEWELL \n Brightness temperature')
+		plt.colorbar()
+		plt.show()
+		"""
+		# expand land mask by morphological dilation
+		#extended_landmask = morphological_dilation(layer, 20)
+		#layer[extended_landmask] = np.nan
 
+		# depending on location convert BT to SST
+		calculated_sst = sst_regres.heysham_bt_to_sst(layer)
+		SST_Celsius = calculated_sst - 273.15
+		SST_Celsius = np.rot90(SST_Celsius)
+		meanSST = np.nanmean(SST_Celsius)
+		#print meanSST
+		SST_amplitude = SST_Celsius - meanSST
+		"""
+		my_cmap = matplotlib.cm.BuPu #hot_r #coolwarm #BuPu #seismic #magma #coolwarm
+		my_cmap.set_bad(color='khaki', alpha=1.0) #olive #black #khaki #silver
+		plt.imshow(SST_amplitude, cmap= my_cmap, vmax=3, vmin=-3)
+		plt.title('Hartlepool SST during ebb'+' '+str(date_in_image_name))
+		plt.colorbar()
+		plt.show()
+		#plt.savefig('/home/users/mp877190/getting_netcdf/SST_plots/Hartlepool/Hartlepool__'+str(date_in_image_name)+'.png')
+		plt.clf()
+		"""
+		
+		# Create a Rectangle patch
+		#rect = patches.Rectangle((250,0),150,150,linewidth=1,edgecolor='k',facecolor='none')
+		#ax.add_patch(rect)
+		#plt.show()
 
+		# get a central part of the image
+		sub_layer = subimage(SST_Celsius, 25)
+		max_val = find_max(sub_layer)
+		#print('max value' , max_val)
+		ambient = centered_average(SST_Celsius[150:300, 250:400]) #[0:150, 250:400])
+		accepted_thresh = np.float(ambient) + 1.0 #np.float(max_val) -  np.float(ambient)
+		#print('accepted threshold' , accepted_thresh)
+		threshold   = accepted_thresh
+		image_thresh = np.copy(SST_Celsius)
+		image_thresh[image_thresh<threshold] = np.nan
+
+		#plt.imshow(image_thresh)
+		#plt.colorbar()
+		#plt.title('Image thresholded')
+		#plt.show()
+		
+		plume = choose_plume(image_thresh)
+		
+		#plt.imshow(plume)
+		#plt.title('Detected plume' + str(date_in_image_name))
+		#plt.show()
+		
+		print "Date of the Landsat image" , date_in_image_name
+		
+		plume_array[i,:,:] = plume
+
+		end_result = np.nansum(plume_array, axis=0)
+		end_result = (end_result / np.amax(end_result)) * 100
+	return plume_array
+
+	
+
+"""
 ## PLOT THE PROBABILITY DENSITY MAP 
 my_cmap = matplotlib.cm.hot_r 
 my_cmap.set_under(color='paleturquoise') #, alpha=0.5)
 plt.imshow(end_result, cmap= my_cmap, vmin=1)
 plt.colorbar()
-plt.title('TORNESS \n Probability of plume extent during ebb \n with waters warmer than ambient by 1.0 degree')
+plt.title('HEYSHAM \n Probability of plume extent during ebb \n with waters warmer than ambient by 1.0 degree')
 plt.tight_layout()
 plt.show()
-
+"""
 
 
 
