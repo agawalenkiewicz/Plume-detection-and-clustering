@@ -28,8 +28,6 @@ plume_cube_all = np.concatenate((plume_cube_aster, plume_cube_landsat), axis=0)
 end_result = np.nansum(plume_cube_all, axis=0)
 end_result = (end_result / np.amax(end_result)) * 100
 
-print mask
-
 landmask = np.flipud(np.array(nc.Dataset(mask).variables['Stat_landmask']))
 a = np.ma.masked_equal(landmask, 0)
 aMask = np.ma.getmaskarray(a)
