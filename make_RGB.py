@@ -92,7 +92,7 @@ def file_to_rgb(filename):
 	ch2 = refl_to_DN(green) 
 	ch3 = refl_to_DN(blue) 
 	
-	rgb = make_rgb(ch1,ch2,ch3) #(red, green, blue)
+	rgb = make_rgb(red, green, blue) #(ch1,ch2,ch3) #(red, green, blue)
 	return rgb
 
 #f = file_to_rgb(sys.argv[1])

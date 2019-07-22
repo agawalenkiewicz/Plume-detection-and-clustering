@@ -1,26 +1,26 @@
 #go into the main location directory
 #list=`ls */*.nc` ; for item in $list ; do echo \'$item\' \,; done
 
-dungeness_path = '/glusterfs/surft/users/mp877190/data/datastore/EE/ASTER_L1T/dungeness'
-dungeness_1999_path = '/glusterfs/surft/users/mp877190/data/datastore/EE/ASTER_L1T/dungeness_1999/nightime'
+dungeness_path = '/storage/silver/surft/users/mp877190/data/datastore/EE/ASTER_L1T/dungeness'
+dungeness_1999_path = '/storage/silver/surft/users/mp877190/data/datastore/EE/ASTER_L1T/dungeness_1999/nighttime'
 
-hartlepool_path = '/glusterfs/surft/users/mp877190/data/datastore/EE/ASTER_L1T/hartlepool'
-hartlepool_1999_path = '/glusterfs/surft/users/mp877190/data/datastore/EE/ASTER_L1T/hartlepool_1999/nighttime'
+hartlepool_path = '/storage/silver/surft/users/mp877190/data/datastore/EE/ASTER_L1T/hartlepool'
+hartlepool_1999_path = '/storage/silver/surft/users/mp877190/data/datastore/EE/ASTER_L1T/hartlepool_1999/nighttime'
 
-heysham_path = '/glusterfs/surft/users/mp877190/data/datastore/EE/ASTER_L1T/heysham'
-heysham_1999_path = '/glusterfs/surft/users/mp877190/data/datastore/EE/ASTER_L1T/heysham_1999/nighttime'
+heysham_path = '/storage/silver/surft/users/mp877190/data/datastore/EE/ASTER_L1T/heysham'
+heysham_1999_path = '/storage/silver/surft/users/mp877190/data/datastore/EE/ASTER_L1T/heysham_1999/nighttime'
 
-hinkley_path = '/glusterfs/surft/users/mp877190/data/datastore/EE/ASTER_L1T/hinkley'
-hinkley_1999_path = '/glusterfs/surft/users/mp877190/data/datastore/EE/ASTER_L1T/hinkley_1999/nighttime'
+hinkley_path = '/storage/silver/surft/users/mp877190/data/datastore/EE/ASTER_L1T/hinkley'
+hinkley_1999_path = '/storage/silver/surft/users/mp877190/data/datastore/EE/ASTER_L1T/hinkley_1999/nighttime'
 
-hunterston_path = '/glusterfs/surft/users/mp877190/data/datastore/EE/ASTER_L1T/hunterston'
-hunterston_1999_path = '/glusterfs/surft/users/mp877190/data/datastore/EE/ASTER_L1T/hunterston_1999/nighttime'
+hunterston_path = '/storage/silver/surft/users/mp877190/data/datastore/EE/ASTER_L1T/hunterston/nighttime'
+hunterston_1999_path = '/storage/silver/surft/users/mp877190/data/datastore/EE/ASTER_L1T/hunterston_1999/nighttime'
 
-sizewell_path = '/glusterfs/surft/users/mp877190/data/datastore/EE/ASTER_L1T/sizewell'
-sizewell_1999_path = '/glusterfs/surft/users/mp877190/data/datastore/EE/ASTER_L1T/sizewell_1999/nighttime'
+sizewell_path = '/storage/silver/surft/users/mp877190/data/datastore/EE/ASTER_L1T/sizewell'
+sizewell_1999_path = '/storage/silver/surft/users/mp877190/data/datastore/EE/ASTER_L1T/sizewell_1999/nighttime'
 
-torness_path = '/glusterfs/surft/users/mp877190/data/datastore/EE/ASTER_L1T/torness'
-torness_1999_path = '/glusterfs/surft/users/mp877190/data/datastore/EE/ASTER_L1T/torness_1999/nighttime'
+torness_path = '/storage/silver/surft/users/mp877190/data/datastore/EE/ASTER_L1T/torness'
+torness_1999_path = '/storage/silver/surft/users/mp877190/data/datastore/EE/ASTER_L1T/torness_1999/nighttime'
 
 dungeness_tir = ['2176209107_tir/AST_L1T_00307142015213909_20150715182923_26770.nc' ,
 '2201043071_tir/AST_L1T_00311012015215052_20151104012453_28462.nc' ,
@@ -34,7 +34,7 @@ dungeness_tir = ['2176209107_tir/AST_L1T_00307142015213909_20150715182923_26770.
 '2246988070_tir/AST_L1T_00302232017215013_20170224111553_25437.nc' ,
 '2248725898_tir/AST_L1T_00304122017215007_20170413081452_2614.nc' ,
 '2250350727_tir/AST_L1T_00305072017214412_20170508094440_4500.nc' ,
-'2251707868_tir/AST_L1T_00305142017215023_20170515112318_23809.nc' ,
+#'2251707868_tir/AST_L1T_00305142017215023_20170515112318_23809.nc' ,
 '2251707875_tir/AST_L1T_00305142017215014_20170515112308_23605.nc' ,
 '2273056952_tir/AST_L1T_00308182017215045_20170819112220_8676.nc' ,
 '2273057100_tir/AST_L1T_00308182017215036_20170819114217_15136.nc' ,
@@ -55,7 +55,7 @@ dungeness_1999_tir = ['2176209107/AST_L1T_00307142015213909_20150715182923_2677.
 '2246988070-useless/AST_L1T_00302232017215013_20170224111553_2543.nc' ,
 '2248725898-useless/AST_L1T_00304122017215007_20170413081452_2614.nc' ,
 '2250350727-maybe/AST_L1T_00305072017214412_20170508094440_4500.nc' ,
-'2251707868-useless/AST_L1T_00305142017215023_20170515112318_2380.nc' ,
+#'2251707868-useless/AST_L1T_00305142017215023_20170515112318_2380.nc' ,
 '2251707875-maybe/AST_L1T_00305142017215014_20170515112308_2360.nc' ,
 '2273056952-useless/AST_L1T_00308182017215045_20170819112220_8676.nc' ,
 '2273057100-maybe/AST_L1T_00308182017215036_20170819114217_1513.nc' ,
@@ -119,36 +119,45 @@ hartlepool_1999_tir = ['2167794869-maybe/AST_L1T_00312172011214458_2015060818365
 '2273056946-useless/AST_L1T_00308182017215138_20170819112340_1268.nc' ,
 '2273057071/AST_L1T_00308182017215147_20170819113727_3222.nc' ,
 '2273088872-maybe/AST_L1T_00308202017213934_20170821105006_9030.nc' ,
-'2273088874-useless/AST_L1T_00308202017213925_20170821104926_7705.nc' ,
+#'2273088874-useless/AST_L1T_00308202017213925_20170821104926_7705.nc' ,
 '2273148673-useless/AST_L1T_00308092017215746_20170822150713_2330.nc' ,
 '2283268940-useless/AST_L1T_00312152017215733_20171216104427_7116.nc' ,
 '2283268965-useless/AST_L1T_00312152017215724_20171216104347_6204.nc' ,
 '2283327817/AST_L1T_00312172017214512_20171218090011_1072.nc']
 
-heysham_tir = ['2194252766_tir/AST_L1T_00309302015215121_20151001103139_9227.nc' ,
-'2195766298_tir/AST_L1T_00310072015215738_20151008173904_4582.nc' ,
+heysham_tir = [#ebb,
+ '2194252766_tir/AST_L1T_00309302015215121_20151001103139_9227.nc' ] #,
+"""
+#flood,
+ '2195766298_tir/AST_L1T_00310072015215738_20151008173904_4582.nc' ,
 '2195766302_tir/AST_L1T_00310072015215729_20151008173854_4565.nc' ,
 '2204905728_tir/AST_L1T_00312102015215743_20151216233925_22227.nc' ,
 '2204905729_tir/AST_L1T_00312102015215734_20151216233915_22187.nc' ,
 '2215166184_tir/AST_L1T_00303062016220321_20160307094533_30663.nc' ,
-'2225511855_tir/AST_L1T_00305092016220357_20160510092009_24656.nc' ,
+#flood,
+ '2225511855_tir/AST_L1T_00305092016220357_20160510092009_24656.nc' ,
 '2237715318_tir/AST_L1T_00307302016215200_20160731223902_3071.nc' ,
 '2243406412_tir/AST_L1T_00310252016215722_20161026141904_29965.nc' ,
 '2243411732_tir/AST_L1T_00310252016215731_20161026170436_3631.nc' ,
 '2244972831_tir/AST_L1T_00312192016220334_20161220130946_21952.nc' ,
-'2280337814_tir/AST_L1T_00310052017215132_20171006104449_4958.nc']
-
+#flood,
+ '2280337814_tir/AST_L1T_00310052017215132_20171006104449_4958.nc']
+"""
 heysham_all = ['2171270613/AST_L1T_00307242014113352_20150622072320_92683.nc']
 
-heysham_1999_tir = ['2194252766/AST_L1T_00309302015215121_20151001103139_9227.nc' ,
-'2195766298/AST_L1T_00310072015215738_20151008173904_4582.nc' ,
-'2204905728-maybe/AST_L1T_00312102015215743_20151216233925_2222.nc' ,
+heysham_1999_tir = [#ebb'
+ '2194252766/AST_L1T_00309302015215121_20151001103139_9227.nc' ,
+#flood,
+# '2195766298/AST_L1T_00310072015215738_20151008173904_4582.nc' ,
+#'2204905728-maybe/AST_L1T_00312102015215743_20151216233925_2222.nc' ,
 '2215166184-maybe/AST_L1T_00303062016220321_20160307094533_3066.nc' ,
-'2225511855-maybe/AST_L1T_00305092016220357_20160510092009_2465.nc' ,
-'2237715318-useless/AST_L1T_00307302016215200_20160731223902_3071.nc' ,
+#'2225511855-maybe/AST_L1T_00305092016220357_20160510092009_2465.nc' ,
+#ebb,
+ '2237715318-useless/AST_L1T_00307302016215200_20160731223902_3071.nc' ,
 '2243411732/AST_L1T_00310252016215731_20161026170436_3631.nc' ,
-'2244972831/AST_L1T_00312192016220334_20161220130946_2195.nc' ,
-'2280337814/AST_L1T_00310052017215132_20171006104449_4958.nc']
+'2244972831/AST_L1T_00312192016220334_20161220130946_2195.nc' ]
+#flood,
+# '2280337814/AST_L1T_00310052017215132_20171006104449_4958.nc']
 
 hinkley_tir = []
 hinkley_all = []

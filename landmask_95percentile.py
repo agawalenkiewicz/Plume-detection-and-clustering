@@ -12,6 +12,11 @@ import water_detection_mask as wdm
 import make_RGB
 import bt_to_sst_double_regression as sst_regres
 
+import optimal_estimation as oe
+import RTTOV_jacobian_files as kfiles
+
+import coral_reef_files as crf
+
 
 
 
@@ -36,55 +41,109 @@ def stack_water_detection(filename, path):
 	---
 	Output: 3D array of 0-1 masks
 	"""
-	#result_array = np.zeros((len(filename), 401, 401))
+	
+	
+	k_prof = [kfiles.k_path + k_element for k_element in kfiles.k_files_torness]
+	k_skin = [kfiles.k_skin_path + k_skin_element for k_skin_element in kfiles.k_skin_files_torness]
+
+
 	result_array = np.empty((len(filename), 401, 401))
 	dates_array = []
+	#tcwv_array = []
+	#diff10_array = []
+	#diff11_array = []
+	
 	for i, element in enumerate(filename):
-		#date_of_the_satellite_obs = element[21:29]
-		element_path = os.path.join(path, element)
-		nc_file = nc.Dataset(element_path)
-		rgb_layer = make_RGB.file_to_rgb(nc_file)
-		BT_masked = masked_bt(nc_file)
-		my_cmap = matplotlib.cm.coolwarm #BuPu #seismic #magma #coolwarm
-		my_cmap.set_over(color='white') #only to get the RGB landmask
-		my_cmap.set_under(color='white') #only to get the RGB landmask
-		plt.imshow(np.rot90(rgb_layer))
-		plt.imshow(np.rot90(BT_masked), cmap=my_cmap, vmax=20, vmin=19)
-		#plt.show()
-
-		#BT_masked = np.array(nc_file.variables['BT10_masked'])
-		BT_masked[BT_masked > 350] = np.nan 
-		BT_masked[BT_masked < 273] = np.nan
-		BT_masked[BT_masked.mask == True] = np.nan
-		result_array[i,:,:] = BT_masked
-		print "results array" , result_array[i,:,:]
-		date = re.findall(r"\d{8}", str(element)[50:61]) #[46:54]) 
-		#print date
-		#print str(element)[50:61] #[46:54] 
-		value = str(date[0].strip().strip("'"))
-		#print value
-		dates_array.append(value)
 		
-		#plt.imshow(np.rot90(result_array[i,:,:]))
+		date_of_the_satellite_obs = re.findall(r"\d{8}", str(element)[45:60])
+		ncfile_date = str(date_of_the_satellite_obs[0].strip().strip("'")) #int(date_of_the_satellite_obs[0])
+		print ncfile_date
+		rttov_date = datetime.strptime(ncfile_date, '%Y%m%d').strftime('%Y-%m-%d')
+		print rttov_date
+		
+		element_path = os.path.join(path, element)
+
+		#matching_date_regex = r"\d{4}-\d{2}-\d{2}"
+		for item1, item2 in zip(k_prof, k_skin):
+			if rttov_date in item1 and rttov_date in item2:
+				print 'YES IT WORKS!'
+				oe_sst, tcwv = oe.oe_main('Landsat', element_path, item1, item2)
+
+		nc_file = nc.Dataset(element_path)
+		#rgb_layer = make_RGB.file_to_rgb(nc_file)
+		sst_masked = masked_bt(nc_file, oe_sst)
+		
+		#BT_masked11, BT_masked10, sst_masked = masked_bt(nc_file, oe_sst)
+		#my_cmap = matplotlib.cm.coolwarm #BuPu #seismic #magma #coolwarm
+		#my_cmap.set_over(color='white') #(color='cadetblue') #only to get the RGB landmask
+		#my_cmap.set_under(color='white') #(color='cadetblue') #only to get the RGB landmask
+		#plt.imshow(np.rot90(rgb_layer), vmin=0, vmax=255) #(np.rot90(rgb_layer))
+		#plt.imshow(np.rot90(BT_masked), cmap=my_cmap, vmax=20, vmin=19)
+		#plt.title('Cockatoo Reef')
+		#plt.show()
+	
+
+		sst_masked[sst_masked > 350] = np.nan 
+		sst_masked[sst_masked < 273] = np.nan
+		sst_masked[sst_masked.mask == True] = np.nan
+		result_array[i,:,:] = sst_masked
+
+		#diff_masked10 = sst_masked - BT_masked10
+		#diff_masked11 = sst_masked - BT_masked11
+		
+		#diff10_avg = np.nanmean(diff_masked10)
+		#diff11_avg = np.nanmean(diff_masked11)
+		
+	
+		#plt.imshow(result_array[i,:,:], cmap=matplotlib.cm.coolwarm)
+		#plt.imshow(BT_masked)
 		#plt.colorbar()
 		#plt.clim()
-		#plt.title('Sizewell  ' + value)
+		#plt.title('Sizewell  ' + rttov_date)
 		#plt.show()
+		"""
+		fig, ax = plt.subplots(2,3)
+		im0 = ax[0,0].imshow(sst_masked, cmap=matplotlib.cm.coolwarm, aspect='auto')
+		fig.colorbar(im0, ax=ax[0,0], orientation='vertical')
+		ax[0,0].set_title("SST")
+		im1 = ax[0,1].imshow(BT_masked10, cmap=matplotlib.cm.coolwarm, aspect='auto')
+		fig.colorbar(im1, ax=ax[0,1], orientation='vertical')
+		ax[0,1].set_title("BT 10.8 micron")
+		im2 = ax[1,1].imshow(BT_masked11, cmap=matplotlib.cm.coolwarm, aspect='auto')
+		fig.colorbar(im2, ax=ax[1,1], orientation='vertical')
+		ax[1,1].set_title("BT 12 micron")
+		im3 = ax[0,2].imshow(diff_masked10, cmap=matplotlib.cm.coolwarm, aspect='auto')
+		fig.colorbar(im3, ax=ax[0,2], orientation='vertical')
+		ax[0,2].set_title("Difference \n SST - BT 10.8")
+		im4 = ax[1,2].imshow(diff_masked11, cmap=matplotlib.cm.coolwarm, aspect='auto')
+		fig.colorbar(im4, ax=ax[1,2], orientation='vertical')
+		ax[1,2].set_title("Difference \n SST - BT 12")
+		plt.suptitle('Torness  ' + rttov_date)
+		plt.show()
+		"""
 		
 	#print np.shape(result_array)
-	return result_array, dates_array
+	return result_array #, dates_array
 
-def masked_bt(nc_file):	
+def masked_bt(nc_file, oe_sst):	
 	BT10 = np.array(nc_file.variables['BT_band10'])
+	BT11 = np.array(nc_file.variables['BT_band11'])
+	
 	#pick your variables for the mask and for BT
 	refl_band3 = np.array(nc_file.variables['reflectance_band3'])
 	refl_band6 = np.array(nc_file.variables['reflectance_band6'])
+	
 	# Get the MNDWI
-	aMNDWIMask = wdm.landmask(refl_band3, refl_band6, BT10)
+	aMNDWIMask = wdm.landmask(refl_band3, refl_band6, oe_sst) 
+	#aMNDWIMask2 = wdm.landmask(refl_band3, refl_band6, BT10)
+	#aMNDWIMask3 = wdm.landmask(refl_band3, refl_band6, BT11)
+	
 	# Apply the mask to the TIR data.
-	BT_masked = np.ma.array(BT10, mask=aMNDWIMask, fill_value=np.nan)
+	sst_masked = np.ma.array(oe_sst, mask=aMNDWIMask, fill_value=np.nan) #BT10
+	#BT_masked = np.ma.array(BT10, mask=aMNDWIMask2, fill_value=np.nan)
+	#BT_masked2 = np.ma.array(BT11, mask=aMNDWIMask3, fill_value=np.nan)
 	#np.ma.set_fill_value(BT_masked, np.nan)
-	return BT_masked
+	return sst_masked #BT_masked, BT_masked2
 
 def stat_landmask(meanBT):
 	"""
@@ -110,7 +169,17 @@ def stat_landmask(meanBT):
 	# Apply the mask to remove land pixels from the image.
 	sum = np.ma.masked_where(meanBT == 1, meanBT)
 	Landmask = np.ma.getmaskarray(sum)
-	return Landmask
+	"""
+	Landmask = np.transpose(np.where(Landmask,0.0,1.0))
+	place_name = 'Torness'
+	landmask_nc = nc.Dataset(place_name+'_landmask.nc', 'w', format='NETCDF4_CLASSIC')
+	lat = landmask_nc.createDimension('lat', len(meanBT[:,0]))
+	lon = landmask_nc.createDimension('lon', len(meanBT[0,:]))
+	mask = landmask_nc.createVariable('Stat_landmask', np.float32, ('lat','lon'))
+	mask[:,:] = Landmask[:,:]
+	landmask_nc.close()
+	"""
+	return Landmask #, landmask_nc
 
 def avg_BT(result_array):	
 	"""
@@ -152,14 +221,15 @@ def centered_average(nums):
 ######################################################
 ######################################################
 ######################################################
-"""
+
 # if you want different place, change it after the dot
-filename1 = Landsat_ncfiles.heysham_10_50
-path1 = Landsat_ncfiles.heysham_10_50_path
+"""
+filename1 = crf.cockatoo_files
+path1 = crf.cockatoo_path
 masked_stack1, dates_stack1 = stack_water_detection(filename1, path1)
 
-filename2 = Landsat_ncfiles.heysham
-path2 = Landsat_ncfiles.heysham_path
+filename2 = Landsat_ncfiles.torness
+path2 = Landsat_ncfiles.torness_path
 masked_stack2, dates_stack2 = stack_water_detection(filename2, path2)
 
 masked_stack = np.concatenate((masked_stack1, masked_stack2),axis=0)
@@ -190,7 +260,7 @@ my_cmap.set_bad(color='khaki')
 #plt.clim(284,289)
 #plt.show()
 
-landmask = stat_landmask(averaged_BT)
+landmask, landmask_netcdf_file = stat_landmask(averaged_BT)
 print landmask
 
 
